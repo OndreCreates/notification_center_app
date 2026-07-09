@@ -4,7 +4,7 @@ Multi-channel notification microservice (email, in-app WebSocket) postavený na
 Spring Boot + RabbitMQ + MySQL. Portfolio projekt — plná architektura a
 rozhodnutí budou popsané zde po dokončení Fáze 4.
 
-> Aktuální stav: Fáze 1, 2 a 3 hotové. Fáze 4 (produkční polish) v přípravě.
+> Aktuální stav: Fáze 1, 2 a 3 hotové. Fáze 4 (produkční polish) rozpracovaná — krok 4A hotový.
 
 ## Spuštění (lokální vývoj)
 
@@ -45,3 +45,19 @@ cd demo
 npm install
 npm run dev
 ```
+
+## Produkční e-mail (SendGrid)
+
+Lokálně se e-maily posílají na Mailhog (nic reálně neodejde). Pro reálné
+odeslání přes SendGrid:
+
+1. Založ SendGrid účet, ověř sender identitu pro `ondrecreates@gmail.com`
+   (Single Sender Verification), vygeneruj API klíč.
+2. Spusť s profilem `demo`:
+
+```bash
+SPRING_PROFILES_ACTIVE=demo SENDGRID_API_KEY=<tvůj-klíč> ./mvnw spring-boot:run
+```
+
+Nic dalšího se měnit nemusí — `application-demo.yml` přepne jen SMTP
+konfiguraci a sender adresu, zbytek (DB, RabbitMQ, admin klíč) zůstává stejný.

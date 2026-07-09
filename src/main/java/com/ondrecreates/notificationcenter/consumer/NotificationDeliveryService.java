@@ -9,6 +9,7 @@ import com.ondrecreates.notificationcenter.notification.NotificationStatus;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -23,18 +24,19 @@ public class NotificationDeliveryService {
     // 1 initiální pokus + 3 retry (5s/30s/2min) = 4 pokusy celkem, pak DLQ.
     private static final int MAX_ATTEMPTS = 4;
 
-    private static final String FROM_ADDRESS = "notifications@notification-center.local";
-
     private final NotificationRepository notificationRepository;
     private final DeliveryAttemptRepository deliveryAttemptRepository;
     private final JavaMailSender mailSender;
+    private final String fromAddress;
 
     public NotificationDeliveryService(NotificationRepository notificationRepository,
                                         DeliveryAttemptRepository deliveryAttemptRepository,
-                                        JavaMailSender mailSender) {
+                                        JavaMailSender mailSender,
+                                        @Value("${app.mail.from-address}") String fromAddress) {
         this.notificationRepository = notificationRepository;
         this.deliveryAttemptRepository = deliveryAttemptRepository;
         this.mailSender = mailSender;
+        this.fromAddress = fromAddress;
     }
 
     @Transactional
@@ -67,7 +69,7 @@ public class NotificationDeliveryService {
     private void sendEmail(Notification notification) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, StandardCharsets.UTF_8.name());
-        helper.setFrom(FROM_ADDRESS);
+        helper.setFrom(fromAddress);
         helper.setTo(notification.getRecipient());
         helper.setSubject(notification.getSubject());
         helper.setText(notification.getBody(), true);

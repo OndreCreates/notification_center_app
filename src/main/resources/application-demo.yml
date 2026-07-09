@@ -1,0 +1,26 @@
+# Profil "demo" – reálné odesílání přes SendGrid SMTP relay místo Mailhogu.
+# Zbytek konfigurace (DB, RabbitMQ, admin klíč) dědí z application.yml beze
+# změny – tenhle soubor jen přepisuje mail nastavení.
+#
+# Spuštění: SPRING_PROFILES_ACTIVE=demo SENDGRID_API_KEY=<klíč> ./mvnw spring-boot:run
+#
+# SendGrid SMTP relay (ne jejich Java SDK/API) – umožňuje beze změny použít
+# stávající JavaMailSender/MimeMessageHelper kód z NotificationDeliveryService,
+# místo psaní druhé, SendGrid-specifické cesty pro odesílání e-mailů.
+spring:
+  mail:
+    host: smtp.sendgrid.net
+    port: 587
+    username: apikey
+    password: ${SENDGRID_API_KEY}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  mail:
+    # Musí být ověřená sender identita v SendGridu, jinak SendGrid odešle zpět chybu.
+    from-address: ondrecreates@gmail.com
