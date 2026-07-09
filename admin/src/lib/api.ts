@@ -1,16 +1,43 @@
-import type { ClientSummary, NotificationDetail, NotificationSummary, Page } from "./types";
+import type {
+  ClientSummary,
+  CreateClientResult,
+  NotificationChannel,
+  NotificationDetail,
+  NotificationSummary,
+  Page,
+  Template,
+} from "./types";
 
 const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:8080";
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY ?? "";
 
-async function adminFetch<T>(path: string): Promise<T> {
+class AdminApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+  }
+}
+
+async function adminFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { "X-Admin-Key": ADMIN_API_KEY },
+    ...init,
+    headers: {
+      "X-Admin-Key": ADMIN_API_KEY,
+      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...init?.headers,
+    },
     cache: "no-store",
   });
 
   if (!res.ok) {
-    throw new Error(`Admin API ${path} selhalo: HTTP ${res.status}`);
+    const body = await res.json().catch(() => null);
+    throw new AdminApiError(body?.error ?? `HTTP ${res.status}`, res.status);
+  }
+
+  if (res.status === 204) {
+    return undefined as T;
   }
 
   return res.json() as Promise<T>;
@@ -41,3 +68,41 @@ export function getNotification(id: string) {
 export function listClients() {
   return adminFetch<ClientSummary[]>("/api/v1/admin/clients");
 }
+
+export function createClient(name: string, contactEmail: string) {
+  return adminFetch<CreateClientResult>("/api/v1/admin/clients", {
+    method: "POST",
+    body: JSON.stringify({ name, contactEmail: contactEmail || null }),
+  });
+}
+
+export function setClientActive(id: number, active: boolean) {
+  return adminFetch<ClientSummary>(`/api/v1/admin/clients/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ active }),
+  });
+}
+
+export function listTemplates() {
+  return adminFetch<Template[]>("/api/v1/admin/templates");
+}
+
+export function createTemplate(code: string, channel: NotificationChannel, content: string) {
+  return adminFetch<Template>("/api/v1/admin/templates", {
+    method: "POST",
+    body: JSON.stringify({ code, channel, content }),
+  });
+}
+
+export function updateTemplate(id: number, content: string) {
+  return adminFetch<Template>(`/api/v1/admin/templates/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ content }),
+  });
+}
+
+export function deleteTemplate(id: number) {
+  return adminFetch<void>(`/api/v1/admin/templates/${id}`, { method: "DELETE" });
+}
+
+export { AdminApiError };

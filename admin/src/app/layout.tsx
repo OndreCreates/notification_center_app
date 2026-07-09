@@ -38,8 +38,12 @@ export default function RootLayout({
               <Link href="/" className="hover:text-slate-900">
                 Notifikace
               </Link>
-              <span className="text-slate-300">Klienti</span>
-              <span className="text-slate-300">Šablony</span>
+              <Link href="/clients" className="hover:text-slate-900">
+                Klienti
+              </Link>
+              <Link href="/templates" className="hover:text-slate-900">
+                Šablony
+              </Link>
             </nav>
           </div>
         </header>

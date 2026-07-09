@@ -50,3 +50,18 @@ export interface ClientSummary {
   name: string;
   active: boolean;
 }
+
+export interface CreateClientResult {
+  id: number;
+  name: string;
+  apiKey: string;
+}
+
+export interface Template {
+  id: number;
+  code: string;
+  channel: NotificationChannel;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
