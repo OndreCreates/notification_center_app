@@ -9,9 +9,10 @@ import org.springframework.context.annotation.Configuration;
 public class SecurityFilterConfig {
 
     @Bean
-    public FilterRegistrationBean<ApiKeyAuthFilter> apiKeyAuthFilter(ClientRepository clientRepository) {
+    public FilterRegistrationBean<ApiKeyAuthFilter> apiKeyAuthFilter(ClientRepository clientRepository,
+                                                                       RateLimitingService rateLimitingService) {
         FilterRegistrationBean<ApiKeyAuthFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new ApiKeyAuthFilter(clientRepository));
+        registration.setFilter(new ApiKeyAuthFilter(clientRepository, rateLimitingService));
         // Ne "/api/v1/*" – to by jako prefix match zahrnulo i /api/v1/admin/*,
         // který má vlastní (oddělenou) autentizaci přes AdminApiKeyFilter.
         registration.addUrlPatterns("/api/v1/notifications/*", "/api/v1/notifications");

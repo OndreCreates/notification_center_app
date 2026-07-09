@@ -19,9 +19,11 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private static final String API_KEY_HEADER = "X-API-Key";
 
     private final ClientRepository clientRepository;
+    private final RateLimitingService rateLimitingService;
 
-    public ApiKeyAuthFilter(ClientRepository clientRepository) {
+    public ApiKeyAuthFilter(ClientRepository clientRepository, RateLimitingService rateLimitingService) {
         this.clientRepository = clientRepository;
+        this.rateLimitingService = rateLimitingService;
     }
 
     @Override
@@ -30,13 +32,18 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
         String apiKey = request.getHeader(API_KEY_HEADER);
         if (apiKey == null || apiKey.isBlank()) {
-            respondUnauthorized(response, "Chybí API klíč v hlavičce X-API-Key.");
+            respondError(response, HttpStatus.UNAUTHORIZED, "Chybí API klíč v hlavičce X-API-Key.");
             return;
         }
 
         Optional<Client> client = clientRepository.findByApiKeyHash(ApiKeyHasher.hash(apiKey));
         if (client.isEmpty() || !client.get().isActive()) {
-            respondUnauthorized(response, "Neplatný API klíč.");
+            respondError(response, HttpStatus.UNAUTHORIZED, "Neplatný API klíč.");
+            return;
+        }
+
+        if (!rateLimitingService.tryConsume(client.get().getId())) {
+            respondError(response, HttpStatus.TOO_MANY_REQUESTS, "Překročen limit požadavků. Zkus to za chvíli znovu.");
             return;
         }
 
@@ -44,8 +51,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private void respondUnauthorized(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    private void respondError(HttpServletResponse response, HttpStatus status, String message) throws IOException {
+        response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write("{\"error\":\"%s\"}".formatted(message));
