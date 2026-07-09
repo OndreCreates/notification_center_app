@@ -1,26 +1,30 @@
 package com.ondrecreates.notificationcenter.notification;
 
+import com.ondrecreates.notificationcenter.channel.NotificationChannelHandler;
 import com.ondrecreates.notificationcenter.client.Client;
-import com.ondrecreates.notificationcenter.config.RabbitMqConfig;
 import com.ondrecreates.notificationcenter.template.TemplateRenderingService;
-import org.springframework.amqp.core.MessageDeliveryMode;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final RabbitTemplate rabbitTemplate;
     private final TemplateRenderingService templateRenderingService;
+    private final Map<NotificationChannel, NotificationChannelHandler> channelHandlers;
 
     public NotificationService(NotificationRepository notificationRepository,
-                                RabbitTemplate rabbitTemplate,
-                                TemplateRenderingService templateRenderingService) {
+                                TemplateRenderingService templateRenderingService,
+                                List<NotificationChannelHandler> channelHandlers) {
         this.notificationRepository = notificationRepository;
-        this.rabbitTemplate = rabbitTemplate;
         this.templateRenderingService = templateRenderingService;
+        this.channelHandlers = channelHandlers.stream()
+                .collect(Collectors.toMap(NotificationChannelHandler::channel, Function.identity()));
     }
 
     @Transactional
@@ -35,7 +39,7 @@ public class NotificationService {
                 .build();
 
         notification = notificationRepository.save(notification);
-        publish(notification);
+        dispatch(notification);
 
         return notification;
     }
@@ -67,24 +71,16 @@ public class NotificationService {
         }
 
         notification.setStatus(NotificationStatus.PENDING);
-        publish(notification);
+        dispatch(notification);
 
         return notification;
     }
 
-    private void publish(Notification notification) {
-        String routingKey = switch (notification.getChannel()) {
-            case EMAIL -> RabbitMqConfig.EMAIL_ROUTING_KEY;
-        };
-
-        rabbitTemplate.convertAndSend(
-                RabbitMqConfig.NOTIFICATIONS_EXCHANGE,
-                routingKey,
-                new NotificationQueueMessage(notification.getId()),
-                message -> {
-                    message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
-                    return message;
-                }
-        );
+    private void dispatch(Notification notification) {
+        NotificationChannelHandler handler = channelHandlers.get(notification.getChannel());
+        if (handler == null) {
+            throw new IllegalStateException("Žádný handler pro kanál %s".formatted(notification.getChannel()));
+        }
+        handler.dispatch(notification);
     }
 }
