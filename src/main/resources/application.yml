@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: notification-center
+
+  datasource:
+    url: jdbc:mysql://localhost:3307/notification_center
+    username: notification_center
+    password: notification_center
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  mail:
+    host: localhost
+    port: 1025
+
+management:
+  endpoint:
+    health:
+      show-details: always
