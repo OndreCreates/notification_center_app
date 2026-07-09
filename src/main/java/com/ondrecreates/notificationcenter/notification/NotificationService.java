@@ -35,6 +35,22 @@ public class NotificationService {
         return notification;
     }
 
+    @Transactional
+    public Notification reprocess(Client client, Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .filter(n -> n.getClient().getId().equals(client.getId()))
+                .orElseThrow(() -> new NotificationNotFoundException(notificationId));
+
+        if (notification.getStatus() != NotificationStatus.DEAD) {
+            throw new NotificationNotReprocessableException(notificationId, notification.getStatus());
+        }
+
+        notification.setStatus(NotificationStatus.PENDING);
+        publish(notification);
+
+        return notification;
+    }
+
     private void publish(Notification notification) {
         String routingKey = switch (notification.getChannel()) {
             case EMAIL -> RabbitMqConfig.EMAIL_ROUTING_KEY;

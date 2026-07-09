@@ -1,5 +1,7 @@
 package com.ondrecreates.notificationcenter.common;
 
+import com.ondrecreates.notificationcenter.notification.NotificationNotFoundException;
+import com.ondrecreates.notificationcenter.notification.NotificationNotReprocessableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -25,5 +27,17 @@ public class GlobalExceptionHandler {
                 "error", "Neplatný požadavek",
                 "fields", fieldErrors
         );
+    }
+
+    @ExceptionHandler(NotificationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, Object> handleNotFound(NotificationNotFoundException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(NotificationNotReprocessableException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, Object> handleConflict(NotificationNotReprocessableException ex) {
+        return Map.of("error", ex.getMessage());
     }
 }

@@ -4,6 +4,7 @@ import com.ondrecreates.notificationcenter.client.Client;
 import com.ondrecreates.notificationcenter.security.ApiKeyAuthFilter;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +29,16 @@ public class NotificationController {
             @Valid @RequestBody CreateNotificationRequest request) {
 
         Notification notification = notificationService.createAndPublish(client, request);
+        return new NotificationResponse(notification.getId(), notification.getStatus());
+    }
+
+    @PostMapping("/{id}/reprocess")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public NotificationResponse reprocess(
+            @RequestAttribute(ApiKeyAuthFilter.CLIENT_ATTRIBUTE) Client client,
+            @PathVariable Long id) {
+
+        Notification notification = notificationService.reprocess(client, id);
         return new NotificationResponse(notification.getId(), notification.getStatus());
     }
 }

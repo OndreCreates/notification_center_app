@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class NotificationDeliveryService {
 
+    // 1 initiální pokus + 3 retry (5s/30s/2min) = 4 pokusy celkem, pak DLQ.
+    private static final int MAX_ATTEMPTS = 4;
+
     private static final String FROM_ADDRESS = "notifications@notification-center.local";
 
     private final NotificationRepository notificationRepository;
@@ -31,7 +34,7 @@ public class NotificationDeliveryService {
     }
 
     @Transactional
-    public void deliver(Long notificationId) {
+    public DeliveryResult deliver(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalStateException("Notifikace %d nenalezena".formatted(notificationId)));
 
@@ -42,10 +45,18 @@ public class NotificationDeliveryService {
             sendEmail(notification);
             recordAttempt(notification, attemptNumber, DeliveryAttemptStatus.SUCCESS, null);
             notification.setStatus(NotificationStatus.SENT);
+            return new DeliveryResult(DeliveryOutcome.SENT, attemptNumber);
         } catch (Exception e) {
-            log.warn("Doručení notifikace {} selhalo: {}", notificationId, e.getMessage());
+            log.warn("Pokus {} o doručení notifikace {} selhal: {}", attemptNumber, notificationId, e.getMessage());
             recordAttempt(notification, attemptNumber, DeliveryAttemptStatus.FAILURE, e.getMessage());
-            notification.setStatus(NotificationStatus.FAILED);
+
+            if (attemptNumber >= MAX_ATTEMPTS) {
+                notification.setStatus(NotificationStatus.DEAD);
+                return new DeliveryResult(DeliveryOutcome.DEAD, attemptNumber);
+            }
+
+            // Zůstává PENDING – ještě není definitivně mrtvá, čeká na retry.
+            return new DeliveryResult(DeliveryOutcome.RETRY_SCHEDULED, attemptNumber);
         }
     }
 
