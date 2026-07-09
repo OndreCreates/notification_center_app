@@ -12,7 +12,9 @@ public class SecurityFilterConfig {
     public FilterRegistrationBean<ApiKeyAuthFilter> apiKeyAuthFilter(ClientRepository clientRepository) {
         FilterRegistrationBean<ApiKeyAuthFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new ApiKeyAuthFilter(clientRepository));
-        registration.addUrlPatterns("/api/v1/*");
+        // Ne "/api/v1/*" – to by jako prefix match zahrnulo i /api/v1/admin/*,
+        // který má vlastní (oddělenou) autentizaci přes AdminApiKeyFilter.
+        registration.addUrlPatterns("/api/v1/notifications/*", "/api/v1/notifications");
         registration.setOrder(1);
         return registration;
     }
