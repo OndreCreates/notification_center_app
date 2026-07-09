@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "admin", "run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "demo",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "demo", "run", "dev"],
+      "port": 3002
     }
   ]
 }

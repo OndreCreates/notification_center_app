@@ -4,7 +4,7 @@ Multi-channel notification microservice (email, in-app WebSocket) postavený na
 Spring Boot + RabbitMQ + MySQL. Portfolio projekt — plná architektura a
 rozhodnutí budou popsané zde po dokončení Fáze 4.
 
-> Aktuální stav: Fáze 1 a 2 hotové, Fáze 3 (admin panel) rozpracovaná — krok 3A hotový.
+> Aktuální stav: Fáze 1, 2 a 3 hotové. Fáze 4 (produkční polish) v přípravě.
 
 ## Spuštění (lokální vývoj)
 
@@ -25,10 +25,23 @@ Po startu:
 ## Admin panel
 
 Next.js admin dashboard v [`admin/`](admin/README.md) — přehled notifikací
-s filtrací a historií pokusů o doručení. Vyžaduje běžící backend.
+s filtrací a historií pokusů o doručení, správa klientů a šablon. Vyžaduje
+běžící backend.
 
 ```bash
 cd admin
+npm install
+npm run dev
+```
+
+## Demo klient
+
+Next.js ukázková appka v [`demo/`](demo/README.md) — formulář na odeslání
+notifikace + live WebSocket feed. Vyžaduje běžící backend a existujícího
+klienta (vytvoř přes admin panel).
+
+```bash
+cd demo
 npm install
 npm run dev
 ```
