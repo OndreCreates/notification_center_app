@@ -6,11 +6,15 @@ import com.ondrecreates.notificationcenter.delivery.DeliveryAttemptStatus;
 import com.ondrecreates.notificationcenter.notification.Notification;
 import com.ondrecreates.notificationcenter.notification.NotificationRepository;
 import com.ondrecreates.notificationcenter.notification.NotificationStatus;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Service
@@ -60,13 +64,14 @@ public class NotificationDeliveryService {
         }
     }
 
-    private void sendEmail(Notification notification) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(FROM_ADDRESS);
-        message.setTo(notification.getRecipient());
-        message.setSubject(notification.getSubject());
-        message.setText(notification.getBody());
-        mailSender.send(message);
+    private void sendEmail(Notification notification) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, StandardCharsets.UTF_8.name());
+        helper.setFrom(FROM_ADDRESS);
+        helper.setTo(notification.getRecipient());
+        helper.setSubject(notification.getSubject());
+        helper.setText(notification.getBody(), true);
+        mailSender.send(mimeMessage);
     }
 
     private void recordAttempt(Notification notification, int attemptNumber, DeliveryAttemptStatus status, String errorMessage) {

@@ -1,7 +1,9 @@
 package com.ondrecreates.notificationcenter.common;
 
+import com.ondrecreates.notificationcenter.notification.InvalidNotificationContentException;
 import com.ondrecreates.notificationcenter.notification.NotificationNotFoundException;
 import com.ondrecreates.notificationcenter.notification.NotificationNotReprocessableException;
+import com.ondrecreates.notificationcenter.template.TemplateNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,6 +40,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotificationNotReprocessableException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, Object> handleConflict(NotificationNotReprocessableException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(TemplateNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, Object> handleTemplateNotFound(TemplateNotFoundException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidNotificationContentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleInvalidContent(InvalidNotificationContentException ex) {
         return Map.of("error", ex.getMessage());
     }
 }

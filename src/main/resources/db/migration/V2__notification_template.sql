@@ -1,0 +1,9 @@
+CREATE TABLE notification_template (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(100) NOT NULL,
+    channel VARCHAR(50) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+    CONSTRAINT uq_notification_template_code_channel UNIQUE (code, channel)
+) ENGINE=InnoDB;

@@ -2,6 +2,7 @@ package com.ondrecreates.notificationcenter.notification;
 
 import com.ondrecreates.notificationcenter.client.Client;
 import com.ondrecreates.notificationcenter.config.RabbitMqConfig;
+import com.ondrecreates.notificationcenter.template.TemplateRenderingService;
 import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,14 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final TemplateRenderingService templateRenderingService;
 
-    public NotificationService(NotificationRepository notificationRepository, RabbitTemplate rabbitTemplate) {
+    public NotificationService(NotificationRepository notificationRepository,
+                                RabbitTemplate rabbitTemplate,
+                                TemplateRenderingService templateRenderingService) {
         this.notificationRepository = notificationRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.templateRenderingService = templateRenderingService;
     }
 
     @Transactional
@@ -25,7 +30,7 @@ public class NotificationService {
                 .channel(request.channel())
                 .recipient(request.recipient())
                 .subject(request.subject())
-                .body(request.body())
+                .body(resolveBody(request))
                 .status(NotificationStatus.PENDING)
                 .build();
 
@@ -33,6 +38,22 @@ public class NotificationService {
         publish(notification);
 
         return notification;
+    }
+
+    private String resolveBody(CreateNotificationRequest request) {
+        boolean hasBody = request.body() != null && !request.body().isBlank();
+        boolean hasTemplate = request.templateCode() != null && !request.templateCode().isBlank();
+
+        if (hasBody == hasTemplate) {
+            throw new InvalidNotificationContentException(
+                    "Musí být vyplněno právě jedno z polí: body, nebo templateCode.");
+        }
+
+        if (hasBody) {
+            return request.body();
+        }
+
+        return templateRenderingService.render(request.templateCode(), request.channel(), request.templateData());
     }
 
     @Transactional
