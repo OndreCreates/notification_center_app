@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 /**
  * Admin API je záměrně oddělená od per-klient X-API-Key autentizace (ApiKeyAuthFilter) –
@@ -32,7 +34,7 @@ public class AdminApiKeyFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String adminKey = request.getHeader(ADMIN_KEY_HEADER);
-        if (adminKey == null || !adminKey.equals(expectedAdminKey)) {
+        if (adminKey == null || !constantTimeEquals(adminKey, expectedAdminKey)) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
@@ -41,5 +43,12 @@ public class AdminApiKeyFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    // String.equals() vrací výsledek rychleji u neshody na prvním znaku –
+    // teoreticky umožňuje timing útok na tajný klíč. MessageDigest.isEqual
+    // porovnává vždy ve stejném čase bez ohledu na to, kde se řetězce liší.
+    private boolean constantTimeEquals(String a, String b) {
+        return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
     }
 }

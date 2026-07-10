@@ -20,6 +20,7 @@ export function CreateClientForm() {
       try {
         const result = await createClientAction(name, contactEmail);
         setCreated(result);
+        (document.getElementById("create-client-form") as HTMLFormElement)?.reset();
       } catch (e) {
         setError(e instanceof Error ? e.message : "Nepodařilo se vytvořit klienta.");
       }
@@ -30,7 +31,7 @@ export function CreateClientForm() {
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <h2 className="text-sm font-medium text-slate-500">Nový klient</h2>
 
-      <form action={handleSubmit} className="mt-3 flex flex-wrap items-end gap-3">
+      <form id="create-client-form" action={handleSubmit} className="mt-3 flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1">
           <label className="text-xs text-slate-500" htmlFor="name">
             Název

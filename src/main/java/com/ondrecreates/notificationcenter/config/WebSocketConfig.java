@@ -26,7 +26,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // Stejné omezení jako CorsConfig – bez něj by libovolná cizí stránka
+        // mohla otevřít WS spojení a (při uhodnutí clientId) odposlouchávat
+        // in-app notifikace přes /topic/notifications/{clientId}.
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*");
+                .setAllowedOriginPatterns("http://localhost:*");
     }
 }
