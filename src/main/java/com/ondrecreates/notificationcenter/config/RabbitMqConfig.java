@@ -2,6 +2,8 @@ package com.ondrecreates.notificationcenter.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.MessageDeliveryMode;
+import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
@@ -84,5 +86,17 @@ public class RabbitMqConfig {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jsonMessageConverter);
         return rabbitTemplate;
+    }
+
+    /**
+     * Sdílené mezi EmailNotificationChannelHandler (publish) a
+     * EmailNotificationConsumer (retry/DLQ) – ať se "persistent delivery mode"
+     * nepíše na třech místech zvlášť.
+     */
+    public static MessagePostProcessor persistent() {
+        return message -> {
+            message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+            return message;
+        };
     }
 }

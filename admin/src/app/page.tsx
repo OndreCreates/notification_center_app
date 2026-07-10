@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { listClients, listNotifications } from "@/lib/api";
+import { formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ChannelBadge } from "@/components/ChannelBadge";
 import { FilterBar } from "@/components/FilterBar";
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("cs-CZ");
-}
 
 export default async function NotificationsPage({
   searchParams,

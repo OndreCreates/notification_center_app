@@ -4,7 +4,6 @@ import com.ondrecreates.notificationcenter.config.RabbitMqConfig;
 import com.ondrecreates.notificationcenter.notification.Notification;
 import com.ondrecreates.notificationcenter.notification.NotificationChannel;
 import com.ondrecreates.notificationcenter.notification.NotificationQueueMessage;
-import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -28,10 +27,7 @@ public class EmailNotificationChannelHandler implements NotificationChannelHandl
                 RabbitMqConfig.NOTIFICATIONS_EXCHANGE,
                 RabbitMqConfig.EMAIL_ROUTING_KEY,
                 new NotificationQueueMessage(notification.getId()),
-                message -> {
-                    message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
-                    return message;
-                }
+                RabbitMqConfig.persistent()
         );
     }
 }

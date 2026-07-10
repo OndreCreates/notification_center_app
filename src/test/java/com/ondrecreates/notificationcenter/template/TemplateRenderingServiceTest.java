@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.StringTemplateResolver;
@@ -35,8 +34,7 @@ class TemplateRenderingServiceTest {
         SpringTemplateEngine engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver);
 
-        TemplateEngine templateEngine = engine;
-        service = new TemplateRenderingService(templateRepository, templateEngine);
+        service = new TemplateRenderingService(templateRepository, engine);
     }
 
     @Test

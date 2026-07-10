@@ -1,6 +1,8 @@
 package com.ondrecreates.notificationcenter.admin;
 
-public class ClientNotFoundException extends RuntimeException {
+import com.ondrecreates.notificationcenter.common.NotFoundException;
+
+public class ClientNotFoundException extends NotFoundException {
 
     public ClientNotFoundException(Long id) {
         super("Klient %d nenalezen".formatted(id));

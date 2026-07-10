@@ -1,7 +1,6 @@
 package com.ondrecreates.notificationcenter.consumer;
 
 import com.ondrecreates.notificationcenter.client.Client;
-import com.ondrecreates.notificationcenter.delivery.DeliveryAttempt;
 import com.ondrecreates.notificationcenter.delivery.DeliveryAttemptRepository;
 import com.ondrecreates.notificationcenter.delivery.DeliveryAttemptStatus;
 import com.ondrecreates.notificationcenter.notification.Notification;
@@ -17,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +57,7 @@ class NotificationDeliveryServiceTest {
     void successfulDelivery_marksNotificationSentAndRecordsSuccessAttempt() {
         Notification notification = sampleNotification();
         when(notificationRepository.findById(NOTIFICATION_ID)).thenReturn(Optional.of(notification));
-        when(deliveryAttemptRepository.findByNotificationIdOrderByAttemptNumberAsc(NOTIFICATION_ID)).thenReturn(List.of());
+        when(deliveryAttemptRepository.countByNotificationId(NOTIFICATION_ID)).thenReturn(0L);
 
         DeliveryResult result = service.deliver(NOTIFICATION_ID);
 
@@ -75,7 +73,7 @@ class NotificationDeliveryServiceTest {
         Notification notification = sampleNotification();
         when(notificationRepository.findById(NOTIFICATION_ID)).thenReturn(Optional.of(notification));
         // Žádný předchozí pokus zaznamenaný => tohle je pokus číslo 1 (z max. 4).
-        when(deliveryAttemptRepository.findByNotificationIdOrderByAttemptNumberAsc(NOTIFICATION_ID)).thenReturn(List.of());
+        when(deliveryAttemptRepository.countByNotificationId(NOTIFICATION_ID)).thenReturn(0L);
         doThrow(new MailSendException("SMTP nedostupné")).when(mailSender).send(any(MimeMessage.class));
 
         DeliveryResult result = service.deliver(NOTIFICATION_ID);
@@ -91,8 +89,7 @@ class NotificationDeliveryServiceTest {
         Notification notification = sampleNotification();
         when(notificationRepository.findById(NOTIFICATION_ID)).thenReturn(Optional.of(notification));
         // 3 předchozí pokusy už zaznamenané => tohle je pokus číslo 4 = MAX_ATTEMPTS.
-        when(deliveryAttemptRepository.findByNotificationIdOrderByAttemptNumberAsc(NOTIFICATION_ID))
-                .thenReturn(List.of(new DeliveryAttempt(), new DeliveryAttempt(), new DeliveryAttempt()));
+        when(deliveryAttemptRepository.countByNotificationId(NOTIFICATION_ID)).thenReturn(3L);
         doThrow(new MailSendException("SMTP nedostupné")).when(mailSender).send(any(MimeMessage.class));
 
         DeliveryResult result = service.deliver(NOTIFICATION_ID);

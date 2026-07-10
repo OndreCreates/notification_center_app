@@ -11,7 +11,7 @@ import type {
 const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:8080";
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY ?? "";
 
-class AdminApiError extends Error {
+export class AdminApiError extends Error {
   constructor(
     message: string,
     public status: number,
@@ -104,5 +104,3 @@ export function updateTemplate(id: number, content: string) {
 export function deleteTemplate(id: number) {
   return adminFetch<void>(`/api/v1/admin/templates/${id}`, { method: "DELETE" });
 }
-
-export { AdminApiError };

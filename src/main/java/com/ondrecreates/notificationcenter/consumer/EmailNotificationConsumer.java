@@ -4,8 +4,6 @@ import com.ondrecreates.notificationcenter.config.RabbitMqConfig;
 import com.ondrecreates.notificationcenter.notification.NotificationQueueMessage;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.MessageDeliveryMode;
-import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.AmqpHeaders;
@@ -53,18 +51,11 @@ public class EmailNotificationConsumer {
 
         log.info("Notifikace {} jde na retry (pokus {} selhal) do fronty {}.",
                 message.notificationId(), failedAttemptNumber, retryQueue);
-        rabbitTemplate.convertAndSend("", retryQueue, message, persistent());
+        rabbitTemplate.convertAndSend("", retryQueue, message, RabbitMqConfig.persistent());
     }
 
     private void sendToDlq(NotificationQueueMessage message) {
         log.warn("Notifikace {} vyčerpala všechny pokusy, jde do DLQ.", message.notificationId());
-        rabbitTemplate.convertAndSend("", RabbitMqConfig.EMAIL_DLQ, message, persistent());
-    }
-
-    private MessagePostProcessor persistent() {
-        return msg -> {
-            msg.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
-            return msg;
-        };
+        rabbitTemplate.convertAndSend("", RabbitMqConfig.EMAIL_DLQ, message, RabbitMqConfig.persistent());
     }
 }

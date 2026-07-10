@@ -1,10 +1,7 @@
 package com.ondrecreates.notificationcenter.common;
 
-import com.ondrecreates.notificationcenter.admin.ClientNotFoundException;
 import com.ondrecreates.notificationcenter.notification.InvalidNotificationContentException;
-import com.ondrecreates.notificationcenter.notification.NotificationNotFoundException;
 import com.ondrecreates.notificationcenter.notification.NotificationNotReprocessableException;
-import com.ondrecreates.notificationcenter.template.TemplateNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -33,9 +30,9 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(NotificationNotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, Object> handleNotFound(NotificationNotFoundException ex) {
+    public Map<String, Object> handleNotFound(NotFoundException ex) {
         return Map.of("error", ex.getMessage());
     }
 
@@ -45,21 +42,9 @@ public class GlobalExceptionHandler {
         return Map.of("error", ex.getMessage());
     }
 
-    @ExceptionHandler(TemplateNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, Object> handleTemplateNotFound(TemplateNotFoundException ex) {
-        return Map.of("error", ex.getMessage());
-    }
-
     @ExceptionHandler(InvalidNotificationContentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleInvalidContent(InvalidNotificationContentException ex) {
-        return Map.of("error", ex.getMessage());
-    }
-
-    @ExceptionHandler(ClientNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, Object> handleClientNotFound(ClientNotFoundException ex) {
         return Map.of("error", ex.getMessage());
     }
 

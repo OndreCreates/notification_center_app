@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { getNotification } from "@/lib/api";
+import { formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ChannelBadge } from "@/components/ChannelBadge";
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("cs-CZ");
-}
 
 export default async function NotificationDetailPage({
   params,
@@ -59,10 +56,11 @@ export default async function NotificationDetailPage({
 
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-medium text-slate-500">Obsah</h2>
-          <div
-            className="prose prose-sm mt-3 max-w-none text-slate-700"
-            dangerouslySetInnerHTML={{ __html: notification.body }}
-          />
+          {/* Ne dangerouslySetInnerHTML – body posílá libovolný autentizovaný
+              API klient, renderování jako HTML by byl uložený XSS. */}
+          <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-sm text-slate-700">
+            {notification.body}
+          </pre>
         </div>
       </div>
 

@@ -44,8 +44,7 @@ public class NotificationDeliveryService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalStateException("Notifikace %d nenalezena".formatted(notificationId)));
 
-        int attemptNumber = deliveryAttemptRepository
-                .findByNotificationIdOrderByAttemptNumberAsc(notificationId).size() + 1;
+        int attemptNumber = (int) deliveryAttemptRepository.countByNotificationId(notificationId) + 1;
 
         try {
             sendEmail(notification);
