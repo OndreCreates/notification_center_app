@@ -1,5 +1,7 @@
 # Notification Center
 
+[![CI](https://github.com/OndreCreates/notification_center_app/actions/workflows/ci.yml/badge.svg)](https://github.com/OndreCreates/notification_center_app/actions/workflows/ci.yml)
+
 Multi-channel notification microservice (e-mail, in-app přes WebSocket) postavený
 na Spring Boot + RabbitMQ + MySQL. Klient pošle notifikaci přes REST API,
 systém ji spolehlivě doručí — s retry, dead-letter frontou a pluggable
