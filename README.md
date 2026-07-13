@@ -174,14 +174,15 @@ test (`NotificationApiIntegrationTest`) ověřuje celý tok `POST /notifications
 → RabbitMQ → `EmailNotificationConsumer` → skutečně odeslaný e-mail, přes
 Testcontainers (MySQL + RabbitMQ) a GreenMail (in-JVM fake SMTP).
 
-**Známé omezení tohoto stroje:** integrační test na tomto konkrétním počítači
-selhává kvůli kompatibilitě mezi Docker Desktop 4.80 (Docker Engine API 1.55)
-a Testcontainers 1.20.4 — `docker info` vrací přes docker-java klienta
-neúplnou odpověď (`BadRequestException`, prázdná těla polí). Standardní
-`docker` CLI a `docker compose` fungují bez problémů, jde čistě o
-kompatibilitu Testcontainers knihovny s touto verzí Docker Desktop. Test kód
-je hotový a projde na stroji s kompatibilní verzí Docker Desktop nebo po
-vydání novější Testcontainers verze s podporou API 1.55.
+**Známé omezení jednoho konkrétního lokálního stroje:** na tomto počítači
+integrační test selhává kvůli kompatibilitě mezi Docker Desktop 4.80 (Docker
+Engine API 1.55) a Testcontainers 1.20.4 — `docker info` vrací přes
+docker-java klienta neúplnou odpověď (`BadRequestException`, prázdná těla
+polí). Standardní `docker` CLI a `docker compose` fungují bez problémů, jde
+čistě o kompatibilitu Testcontainers knihovny s touto verzí Docker Desktop.
+**Potvrzeno v CI** ([GitHub Actions](https://github.com/OndreCreates/notification_center_app/actions)) –
+na čerstvém Docker prostředí projdou všechny testy včetně integračního, takže
+jde skutečně jen o lokální nekompatibilitu verzí, ne o chybu v testu.
 
 ## Roadmapa — co dál
 
