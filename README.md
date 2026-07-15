@@ -11,6 +11,12 @@ Portfolio projekt: cíl není generický CRUD tutoriál, ale demonstrace návrhu
 produkčního backendu — queue-based zpracování, spolehlivé doručení, čitelné
 architektonické rozhodnutí místo copy-paste řešení.
 
+## Ukázka
+
+| Admin panel — přehled notifikací | Demo klient — live feed bez refreshe |
+|---|---|
+| ![Admin: přehled notifikací](docs/screenshots/admin-notifications.png) | ![Demo klient s live feedem](docs/screenshots/demo-app.png) |
+
 ## Architektura
 
 ```mermaid
@@ -133,6 +139,16 @@ cd admin
 npm install
 npm run dev
 ```
+
+![Detail notifikace s historií pokusů o doručení](docs/screenshots/admin-detail.png)
+
+<details>
+<summary>Další screenshoty (klienti, šablony)</summary>
+
+![Správa klientů](docs/screenshots/admin-clients.png)
+![Správa šablon](docs/screenshots/admin-templates.png)
+
+</details>
 
 ## Demo klient
 
