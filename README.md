@@ -125,6 +125,16 @@ Po startu:
 **Pozn.:** MySQL běží lokálně na portu `3307` (ne výchozím `3306`), aby
 nekolidoval s jinou MySQL instancí, kterou už na svém stroji možná máš.
 
+**Pozn. (běh vedle ostatních portfolio appek):** `incident_management_system_app`
+i `monitoring_dashboard_app` mají svůj backend defaultně taky na `:8080`.
+`incident_management_system_app` navíc počítá s tím, že tahle appka poslouchá
+na `:8081` (viz `NOTIFICATION_API_URL` v jejím `docker-compose.yml`). Pro běh
+vedle nich spusť s explicitním portem:
+
+```bash
+SERVER_PORT=8081 ./mvnw spring-boot:run
+```
+
 Klienta pro testování API vytvoříš přes admin panel (níže) — bez API klíče
 `POST /api/v1/notifications` vrátí 401.
 
