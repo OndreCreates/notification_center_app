@@ -122,8 +122,8 @@ Po startu:
 - RabbitMQ management: http://localhost:15672 (guest/guest)
 - Mailhog UI (odchozí e-maily): http://localhost:8025
 
-**Pozn.:** MySQL běží lokálně na portu `3307` (ne výchozím `3306`), protože
-3306 je na tomto stroji obsazený jiným projektem.
+**Pozn.:** MySQL běží lokálně na portu `3307` (ne výchozím `3306`), aby
+nekolidoval s jinou MySQL instancí, kterou už na svém stroji možná máš.
 
 Klienta pro testování API vytvoříš přes admin panel (níže) — bez API klíče
 `POST /api/v1/notifications` vrátí 401.

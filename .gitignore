@@ -1,5 +1,6 @@
 HELP.md
 PROJECT_NOTES.md
+.claude/
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
